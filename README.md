@@ -19,6 +19,8 @@ python3 -m http.server 8000 --directory dist --bind 127.0.0.1
 
 然后打开 http://127.0.0.1:8000/ 。网页源文件位于 `web/`，不要直接编辑生成的 `dist/`。
 
+日常提交、推送及命令行登录说明见 [Git 使用说明](docs/git-workflow.md)。
+
 ## 发布
 
 GitHub 仓库 **Settings → Pages → Source** 选择 **GitHub Actions**。更新网页后提交并推送到 `main`，工作流将构建、检查并发布 `dist/`。Pull request 只检查，不部署；也可在 Actions 手动运行 `Publish GitHub Pages`。

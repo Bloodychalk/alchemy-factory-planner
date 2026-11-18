@@ -210,6 +210,25 @@ test("bounded recommendation compares candidates without claiming global optimal
   assert.ok(plan.audit.material);
   assert.ok(plan.steps.every((s) => Number.isInteger(s.installed)));
 });
+test("reopening a plan keeps generated recipe IDs unique and exportable", async () => {
+  const request = { ...base, item: "Plank", cauldron: true };
+  let saved = db;
+  for (let round = 0; round < 3; round++) {
+    const result = await recommend(saved, context.AlchemyCalcEngine, request, {
+      helpers,
+      timeLimit: 100,
+    });
+    saved = JSON.parse(JSON.stringify(result.db));
+    assert.ok(saved.recipes.some((r) => r.id.startsWith("AFP_CAULDRON_")));
+    assert.equal(
+      new Set(saved.recipes.map((r) => r.id)).size,
+      saved.recipes.length,
+    );
+    assert.doesNotThrow(() => validateDataset(saved));
+    assert.equal(result.plan.desired, 60);
+    assert.ok(result.plan.audit.material);
+  }
+});
 test("research thresholds and canonical names are preserved", () => {
   assert.equal(context.AlchemyCalcEngine.getSpeedMult(12), 4);
   assert.equal(context.AlchemyCalcEngine.getSpeedMult(13), 4.05);

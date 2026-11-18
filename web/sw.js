@@ -1,4 +1,4 @@
-const CACHE = "alchemy-factory-planner-shell-v1.0.1";
+const CACHE = "alchemy-factory-planner-shell-v1.0.2";
 const FILES = [
   "./",
   "./index.html",

@@ -366,7 +366,15 @@ function addCauldronCandidates(db, helpers, deadline) {
           helpers.resolve3(pool[i], pool[j], pool[k], targets),
         );
       }
-  for (const list of kept.values()) db.recipes.push(...list.map((x) => x.r));
+  // Saved plans contain these recipes too. Reopening must keep IDs unique so
+  // the result can be exported and validated again on either platform.
+  const existing = new Set(db.recipes.map((r) => r.id));
+  for (const list of kept.values())
+    for (const { r } of list)
+      if (!existing.has(r.id)) {
+        db.recipes.push(r);
+        existing.add(r.id);
+      }
 }
 
 export async function recommend(

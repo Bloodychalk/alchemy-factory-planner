@@ -2,7 +2,7 @@
 
 选择产物和目标净产量，自动推荐包含原料、燃料、肥料和副产物回收的产线。文字清单与可拖动的流程图使用同一份配平结果。
 
-[在线使用](https://bloodychalk.github.io/alchemy-factory-planner/) · [使用说明](docs/user-guide.md) · [开发说明](docs/development.md)
+[在线使用](https://bloodychalk.github.io/alchemy-factory-planner/) · [使用说明](docs/user-guide.md) · [验证记录](docs/verification.md) · [开发说明](docs/development.md)
 
 当前实现包括 JSON 导入导出、每分钟/每秒/秒每个单位、研究等级、指定目标配方、催化剂与悖论投入配置、自动比较路线、方案保存和 Python 桌面宿主。计算复用 starfi5h 的规则引擎，图形复用其现有画布与自动布局；没有重新开发一套节点框架。
 

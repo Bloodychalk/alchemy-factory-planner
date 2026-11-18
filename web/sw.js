@@ -1,9 +1,11 @@
-const CACHE = "alchemy-factory-planner-shell-v1.0.6";
+const CACHE = "alchemy-factory-planner-shell-v1.0.7";
 const FILES = [
   "./",
   "./index.html",
   "./styles.css",
   "./favicon.svg",
+  "./fonts/Inter-Bold.ttf",
+  "./fonts/Inter-Black.ttf",
   "./app.js",
   "./data.js",
   "./platform.js",
@@ -17,7 +19,9 @@ self.addEventListener("install", (event) =>
   event.waitUntil(
     caches
       .open(CACHE)
-      .then((c) => c.addAll(FILES.map((url) => new Request(url, { cache: "reload" }))))
+      .then((c) =>
+        c.addAll(FILES.map((url) => new Request(url, { cache: "reload" }))),
+      )
       .then(() => self.skipWaiting()),
   ),
 );

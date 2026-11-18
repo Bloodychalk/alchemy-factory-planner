@@ -177,7 +177,31 @@ export async function graphDocument(payload, progress = () => {}) {
       window.addEventListener('message', event => {if(event.source!==parent)return; if(event.data?.type==='export-layout')parent.postMessage({type:'layout',graph:JSON.parse(JSON.stringify(plannerState))},'*');});
       parent.postMessage({type:'graph-ready'},'*');
     };`;
-  const style = `<style>html,body{height:100%;background:#14231f}header,#update-banner{display:none!important}main{padding:0!important;max-width:none!important}#view-planner{height:100vh!important}#planner-canvas{height:100vh!important;border:0}#view-planner>.planner-toolbar{display:none!important}#planner-summary-panel{font-size:11px}.planner-node input{pointer-events:none}.planner-node button{display:none!important}</style>`;
+  const style = `<style>html,body{height:100%;background:#14231f}header,#update-banner{display:none!important}main{padding:0!important;max-width:none!important}#view-planner{height:100vh!important}#planner-canvas{height:100vh!important;border:0}#view-planner>.planner-toolbar{display:none!important}#planner-summary-panel{font-size:14px}.planner-node input{pointer-events:none}.planner-node button{display:none!important}:root{--accent:#000;--profit:#4ecdc4;--warn:#ffe66d;--danger:#ff6b6b;--panel:#fff;--border:#000;--text:#000;--text-muted:#000}
+html,body{background:#fff!important;color:#000;font-family:Inter,'Arial Black','PingFang SC','Microsoft YaHei',sans-serif;font-weight:700}
+#planner-canvas{background:#fff!important;border:0!important;border-radius:0!important}
+.planner-node{background:#fff!important;border:4px solid #000!important;border-radius:0!important;box-shadow:6px 6px 0 #4ecdc4!important;color:#000}
+.planner-node-header{background:#ffe66d!important;color:#000!important;border-radius:0!important;border-bottom:4px solid #000!important}
+.planner-node-header.heat{background:#ff6b6b!important}.planner-node-header.fert{background:#4ecdc4!important}
+.planner-node-title,.planner-port-name,.planner-port-rate,.planner-port-empty,.planner-heatfert-row,.planner-edge-belt{color:#000!important;font-weight:700}
+.planner-node input{background:#fff!important;color:#000!important;border:2px solid #000!important;border-radius:0!important;opacity:1}
+.planner-port-gray{background:#fff!important}
+.planner-port-dot{border:2px solid #000!important;border-radius:0!important}
+.planner-edge-label{background:#fff!important;color:#000!important;border:2px solid #000!important;border-radius:0!important;box-shadow:2px 2px 0 #4ecdc4}
+.planner-edge-group{color:#000!important}
+#planner-summary-panel{background:#fff!important;color:#000!important;border:4px solid #000!important;border-radius:0!important;box-shadow:6px 6px 0 #4ecdc4!important;font-weight:700;backdrop-filter:none!important}
+.planner-view-btn{background:#ffe66d!important;color:#000!important;border:4px solid #000!important;border-radius:0!important;box-shadow:4px 4px 0 #4ecdc4!important;font-size:0!important;display:grid!important;place-items:center;transition:transform 300ms cubic-bezier(.34,1.56,.64,1),box-shadow 300ms cubic-bezier(.34,1.56,.64,1)}
+.planner-view-btn:hover{transform:translateY(-4px);background:#4ecdc4!important}.planner-view-btn:active{transform:translate(4px,4px);box-shadow:none!important}
+.planner-view-btn:focus-visible{outline:4px solid #000;outline-offset:4px}
+.planner-view-btn::after{content:'';width:18px;height:18px;background:#000;mask:var(--control-icon) center/contain no-repeat}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.planner-view-btn:hover,.planner-view-btn:active{transform:none}}
+
+.planner-view-btn#planner-grid-btn{--control-icon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222.5%22%3E%3Cpath%20d%3D%22M3%203h18v18H3z%20M3%2012h18M12%203v18%22%2F%3E%3C%2Fsvg%3E")}
+.planner-view-btn#planner-edge-style-btn{--control-icon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222.5%22%3E%3Cpath%20d%3D%22M3%2012h18m-5-5%205%205-5%205%22%2F%3E%3C%2Fsvg%3E")}
+.planner-view-btn[title^="Zoom In"]{--control-icon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222.5%22%3E%3Cpath%20d%3D%22M12%204v16M4%2012h16%22%2F%3E%3C%2Fsvg%3E")}
+.planner-view-btn[title^="Zoom Out"]{--control-icon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222.5%22%3E%3Cpath%20d%3D%22M4%2012h16%22%2F%3E%3C%2Fsvg%3E")}
+.planner-view-btn[title^="Fit to View"]{--control-icon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222.5%22%3E%3Cpath%20d%3D%22M9%203H3v6m12-6h6v6M3%2015v6h6m6%200h6v-6%22%2F%3E%3C%2Fsvg%3E")}
+.planner-view-btn[title="Optimize Port Order"]{--control-icon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222.5%22%3E%3Cpath%20d%3D%22M3%205h4l10%2014h4m-4-4%204%204-4%203M3%2019h4l10-14h4m-4-3%204%203-4%204%22%2F%3E%3C%2Fsvg%3E")} </style>`;
   return html
     .replace("</head>", style + "</head>")
     .replace("</body>", scriptTag(bridge) + "</body>");

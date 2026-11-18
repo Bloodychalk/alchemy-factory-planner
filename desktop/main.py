@@ -8,14 +8,13 @@ from pathlib import Path
 import threading
 import sys
 from urllib.parse import urlsplit
-import webbrowser
 from .runtime import ReferenceCache, atomic_write, resources, user_directory
 from .wiki import synchronize
 
 class Handler(SimpleHTTPRequestHandler):
     def do_GET(self):
         if urlsplit(self.path).path in {"/", "/index.html"}:
-            content = (resources() / "index.html").read_text().replace("<head>", "<head><script>window.ALCHEMY_DESKTOP=true;</script>", 1).encode()
+            content = (resources() / "index.html").read_text(encoding="utf-8").replace("<head>", "<head><script>window.ALCHEMY_DESKTOP=true;</script>", 1).encode("utf-8")
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
             self.send_header("Content-Length", str(len(content)))
@@ -64,7 +63,7 @@ class Api:
 
     def restore(self):
         path = self._directory / "last-plan.json"
-        return {"ok": True, "data": path.read_text() if path.exists() else ""}
+        return {"ok": True, "data": path.read_text(encoding="utf-8") if path.exists() else ""}
 
     def save_dataset(self, text):
         try:
@@ -78,7 +77,7 @@ class Api:
 
     def load_dataset(self):
         path = self._directory / "dataset.json"
-        return {"ok": True, "data": path.read_text() if path.exists() else ""}
+        return {"ok": True, "data": path.read_text(encoding="utf-8") if path.exists() else ""}
 
     def sync_wiki(self, text):
         try:
@@ -90,6 +89,10 @@ class Api:
             return {"ok": False, "error": str(error)}
 
 def main():
+    # Windows terminals can default to cp1252. File formats and diagnostics are UTF-8.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="backslashreplace")
     parser = argparse.ArgumentParser(description="炼金工厂产线计算器")
     parser.add_argument("--prepare", action="store_true", help="下载并校验本机离线参考资料")
     parser.add_argument("--reference", type=Path, help="使用已下载且版本匹配的参考源码")

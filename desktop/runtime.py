@@ -52,7 +52,7 @@ def download(url: str) -> bytes:
 
 class ReferenceCache:
     def __init__(self, directory: Path | None = None):
-        self.manifest = json.loads((resources() / "upstream.json").read_text())
+        self.manifest = json.loads((resources() / "upstream.json").read_text(encoding="utf-8"))
         self.root = (directory or user_directory()) / "reference" / self.manifest["commit"]
 
     def valid(self, name: str) -> bool:

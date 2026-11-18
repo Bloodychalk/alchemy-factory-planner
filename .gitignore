@@ -1,0 +1,18 @@
+# Local source research is deliberately excluded from publication.
+/research/
+/modification-plan.md
+
+# Generated output, environments, local state and credentials.
+/dist/
+/build/
+/.venv/
+/venv/
+__pycache__/
+*.py[cod]
+.DS_Store
+.env
+.env.*
+!.env.example
+*.log
+/.idea/
+/.vscode/

@@ -680,7 +680,7 @@ export async function recommend(
   return { plan, db };
 }
 
-function buildGraph(plan) {
+export function buildGraph(plan) {
   const nodes = {},
     edges = {};
   let seq = 0,
@@ -724,19 +724,20 @@ function buildGraph(plan) {
     ports.push({ id, inputs: { ...inputs }, outputs: { ...outputs } });
     return id;
   };
-  plan.steps.forEach((s, i) =>
-    put(
+  plan.steps.forEach((s, i) => {
+    const id = put(
       s.recipe,
       s.machine,
-      s.machines,
+      s.installed,
       s.inputs,
       s.outputs,
       350 + (i % 4) * 280,
       80 + Math.floor(i / 4) * 310,
       s.fuel,
       s.fertilizer,
-    ),
-  );
+    );
+    nodes[id].theoreticalCount = s.machines;
+  });
   Object.entries(plan.purchases).forEach(([item, rate], i) =>
     put(
       {
@@ -852,6 +853,8 @@ export function describePlan(plan, translations = {}) {
     `肥料：${name(plan.fertilizer)} ${n(plan.fertilizerRate)} /分钟`,
     `加热设备：${name(plan.settings.selectedHeatingDevice)} × ${plan.heaterCount}`,
   );
+  for (const [machine, count] of Object.entries(plan.logisticsMachines || {}))
+    lines.push(`${name(machine)} × ${count}`);
   if (Object.keys(plan.startup || {}).length) {
     lines.push("", "一次性启动材料");
     Object.entries(plan.startup).forEach(([k, v]) =>

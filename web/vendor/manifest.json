@@ -1,0 +1,19 @@
+{
+  "g6": {
+    "version": "5.1.1",
+    "source": "https://registry.npmjs.org/@antv/g6/-/g6-5.1.1.tgz",
+    "license": "MIT"
+  },
+  "elkjs": {
+    "version": "0.12.1",
+    "source": "https://registry.npmjs.org/elkjs/-/elkjs-0.12.1.tgz",
+    "license": "EPL-2.0"
+  },
+  "sha256": {
+    "LICENSE.md": "637e81f4a1b6b4079535c499fca05e238cf7605c1ff5b76d60d7da7ce96700c9",
+    "LICENSE": "d296127a77fae081300d5b18fcfa5ccda75cd16670c1b46dc890a8903ca95128",
+    "elk.bundled.js": "b1032b7cfd2a57c54c6f0e8369d7665e19a579954f7cd20a6dae28f1912ea0d7",
+    "g6.min.js": "3e091a94fd08994a383ff34bfba256bb8e382e4be4042197a206d2ecc0957331",
+    "elk-worker.min.js": "dca3a19d9ec37f5634bf5876b4ebd2455c3f43f0d32570136c13c13edaba9bfb"
+  }
+}

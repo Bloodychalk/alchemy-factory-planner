@@ -12,7 +12,7 @@
 
 ## 路径与来源
 
-站点位于 `/alchemy-factory-planner/`，使用相对资源路径。localStorage 使用项目命名空间。保留参考版本和 SHA-256 校验，不向 Pages 复制研究快照、私有文件或第三方完整源码。来源说明集中在 README。
+站点位于 `/alchemy-factory-planner/`，使用相对资源路径。localStorage 使用项目命名空间。保留参考版本和 SHA-256 校验，不向 Pages 复制研究快照、私有文件或未获开放授权的参考计算器源码。详细图使用的 G6/ELK 按各自许可证分发，版本、来源及许可证位于 `web/vendor/`。来源说明集中在 README。
 
 ## 验收
 

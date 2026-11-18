@@ -1,0 +1,297 @@
+{
+  "version": 1,
+  "gameVersion": "1.1.5024",
+  "machines": {
+    "Table Saw": {
+      "source": "https://alchemyfactoryrecipes.com/machines/table-saw",
+      "status": "verified",
+      "beltIn": 1,
+      "beltOut": 1,
+      "pipeIn": 0,
+      "pipeOut": 0
+    },
+    "Stone Crusher": {
+      "source": "https://alchemyfactoryrecipes.com/machines/stone-crusher",
+      "status": "verified",
+      "beltIn": 1,
+      "beltOut": 1,
+      "pipeIn": 0,
+      "pipeOut": 0
+    },
+    "Grinder": {
+      "source": "https://alchemyfactoryrecipes.com/machines/grinder",
+      "status": "verified",
+      "beltIn": 1,
+      "beltOut": 1,
+      "pipeIn": 0,
+      "pipeOut": 0
+    },
+    "Enhanced Grinder": {
+      "source": "https://alchemyfactoryrecipes.com/machines/enhanced-grinder",
+      "status": "verified",
+      "beltIn": 1,
+      "beltOut": 1,
+      "pipeIn": 0,
+      "pipeOut": 0
+    },
+    "Processor": {
+      "source": "https://alchemyfactoryrecipes.com/machines/processor",
+      "status": "verified",
+      "beltIn": 1,
+      "beltOut": 1,
+      "pipeIn": 0,
+      "pipeOut": 0
+    },
+    "Assembler": {
+      "source": "https://alchemyfactoryrecipes.com/machines/assembler",
+      "status": "verified",
+      "beltIn": 2,
+      "beltOut": 1,
+      "pipeIn": 0,
+      "pipeOut": 0
+    },
+    "Advanced Assembler": {
+      "source": "https://alchemyfactoryrecipes.com/machines/advanced-assembler",
+      "status": "verified",
+      "beltIn": 3,
+      "beltOut": 1,
+      "pipeIn": 1,
+      "pipeOut": 1
+    },
+    "Shaper": {
+      "source": "https://alchemyfactoryrecipes.com/machines/shaper",
+      "status": "verified",
+      "beltIn": 6,
+      "beltOut": 1,
+      "pipeIn": 0,
+      "pipeOut": 0
+    },
+    "Advanced Shaper": {
+      "source": "https://alchemyfactoryrecipes.com/machines/advanced-shaper",
+      "status": "verified",
+      "beltIn": 5,
+      "beltOut": 1,
+      "pipeIn": 2,
+      "pipeOut": 2
+    },
+    "Arcane Shaper": {
+      "source": "https://alchemyfactoryrecipes.com/machines/arcane-shaper",
+      "status": "verified",
+      "beltIn": 9,
+      "beltOut": 1,
+      "pipeIn": 0,
+      "pipeOut": 0
+    },
+    "Arcane Processor": {
+      "source": "https://alchemyfactoryrecipes.com/machines/arcane-processor",
+      "status": "verified",
+      "beltIn": 3,
+      "beltOut": 1,
+      "pipeIn": 0,
+      "pipeOut": 0
+    },
+    "Nursery": {
+      "source": "https://alchemyfactoryrecipes.com/machines/nursery",
+      "status": "verified",
+      "beltIn": 1,
+      "beltOut": 1,
+      "pipeIn": 0,
+      "pipeOut": 0
+    },
+    "World Tree Nursery": {
+      "source": "https://alchemyfactoryrecipes.com/machines/world-tree-nursery",
+      "status": "verified",
+      "beltIn": 9,
+      "beltOut": 1,
+      "pipeIn": 0,
+      "pipeOut": 0
+    },
+    "Seed Plot": {
+      "source": "https://alchemyfactoryrecipes.com/machines/seed-plot",
+      "status": "missing"
+    },
+    "Iron Smelter": {
+      "source": "https://alchemyfactoryrecipes.com/machines/iron-smelter",
+      "status": "verified",
+      "beltIn": 1,
+      "beltOut": 1,
+      "pipeIn": 0,
+      "pipeOut": 0
+    },
+    "Crucible": {
+      "source": "https://alchemyfactoryrecipes.com/machines/crucible",
+      "status": "verified",
+      "beltIn": 1,
+      "beltOut": 1,
+      "pipeIn": 0,
+      "pipeOut": 0
+    },
+    "Stackable Crucible": {
+      "source": "https://alchemyfactoryrecipes.com/machines/stackable-crucible",
+      "status": "verified",
+      "beltIn": 1,
+      "beltOut": 1,
+      "pipeIn": 0,
+      "pipeOut": 0
+    },
+    "Kiln": {
+      "source": "https://alchemyfactoryrecipes.com/machines/kiln",
+      "status": "verified",
+      "beltIn": 1,
+      "beltOut": 1,
+      "pipeIn": 0,
+      "pipeOut": 0
+    },
+    "Athanor": {
+      "source": "https://alchemyfactoryrecipes.com/machines/athanor",
+      "status": "verified",
+      "beltIn": 2,
+      "beltOut": 2,
+      "pipeIn": 0,
+      "pipeOut": 0
+    },
+    "Advanced Athanor": {
+      "source": "https://alchemyfactoryrecipes.com/machines/advanced-athanor",
+      "status": "verified",
+      "beltIn": 3,
+      "beltOut": 3,
+      "pipeIn": 1,
+      "pipeOut": 1
+    },
+    "Cauldron": {
+      "source": "https://alchemyfactoryrecipes.com/machines/cauldron",
+      "status": "verified",
+      "beltIn": 3,
+      "beltOut": 1,
+      "pipeIn": 0,
+      "pipeOut": 0
+    },
+    "Advanced Cauldron": {
+      "source": "https://alchemyfactoryrecipes.com/machines/advanced-cauldron",
+      "status": "verified",
+      "beltIn": 2,
+      "beltOut": 1,
+      "pipeIn": 0,
+      "pipeOut": 0
+    },
+    "Paradox Crucible": {
+      "source": "https://alchemyfactoryrecipes.com/machines/paradox-crucible",
+      "status": "verified",
+      "beltIn": 1,
+      "beltOut": 1,
+      "pipeIn": 0,
+      "pipeOut": 0
+    },
+    "Extractor": {
+      "source": "https://alchemyfactoryrecipes.com/machines/extractor",
+      "status": "verified",
+      "beltIn": 1,
+      "beltOut": 0,
+      "pipeIn": 0,
+      "pipeOut": 1
+    },
+    "Thermal Extractor": {
+      "source": "https://alchemyfactoryrecipes.com/machines/thermal-extractor",
+      "status": "verified",
+      "beltIn": 1,
+      "beltOut": 0,
+      "pipeIn": 0,
+      "pipeOut": 1
+    },
+    "Blender": {
+      "source": "https://alchemyfactoryrecipes.com/machines/blender",
+      "status": "verified",
+      "beltIn": 1,
+      "beltOut": 1,
+      "pipeIn": 1,
+      "pipeOut": 1
+    },
+    "Advanced Blender": {
+      "source": "https://alchemyfactoryrecipes.com/machines/advanced-blender",
+      "status": "verified",
+      "beltIn": 2,
+      "beltOut": 1,
+      "pipeIn": 1,
+      "pipeOut": 1
+    },
+    "Alembic": {
+      "source": "https://alchemyfactoryrecipes.com/machines/alembic",
+      "status": "verified",
+      "beltIn": 1,
+      "beltOut": 0,
+      "pipeIn": 2,
+      "pipeOut": 2
+    },
+    "Advanced Alembic": {
+      "source": "https://alchemyfactoryrecipes.com/machines/advanced-alembic",
+      "status": "verified",
+      "beltIn": 2,
+      "beltOut": 0,
+      "pipeIn": 2,
+      "pipeOut": 2
+    },
+    "Purchasing Portal": {
+      "source": "https://alchemyfactoryrecipes.com/machines/purchasing-portal",
+      "status": "verified",
+      "beltIn": 1,
+      "beltOut": 1,
+      "pipeIn": 0,
+      "pipeOut": 0
+    },
+    "Bank Portal": {
+      "source": "https://alchemyfactoryrecipes.com/machines/bank-portal",
+      "status": "verified",
+      "beltIn": 1,
+      "beltOut": 1,
+      "pipeIn": 0,
+      "pipeOut": 0
+    },
+    "Stone Furnace": {
+      "source": "https://alchemyfactoryrecipes.com/machines/stone-furnace",
+      "status": "verified",
+      "beltIn": 1,
+      "beltOut": 0,
+      "pipeIn": 0,
+      "pipeOut": 0
+    },
+    "Blast Furnace": {
+      "source": "https://alchemyfactoryrecipes.com/machines/blast-furnace",
+      "status": "verified",
+      "beltIn": 1,
+      "beltOut": 0,
+      "pipeIn": 0,
+      "pipeOut": 0
+    },
+    "Steam Heating Pad": {
+      "source": "https://alchemyfactoryrecipes.com/machines/steam-heating-pad",
+      "status": "missing"
+    },
+    "Steam Boiler": {
+      "source": "https://alchemyfactoryrecipes.com/machines/steam-boiler",
+      "status": "missing"
+    }
+  },
+  "logisticsDevices": {
+    "splitter": {
+      "status": "verified",
+      "beltIn": 1,
+      "beltOut": 2,
+      "priority": "first-output",
+      "source": "https://alchemyfactoryrecipes.com/guides/logistics#splitters-mergers-filters-and-storage"
+    },
+    "merger": {
+      "status": "verified",
+      "beltIn": 2,
+      "beltOut": 1,
+      "priority": "first-input",
+      "source": "https://alchemyfactoryrecipes.com/guides/logistics#splitters-mergers-filters-and-storage"
+    },
+    "filter": {
+      "status": "verified",
+      "beltIn": 1,
+      "beltOut": 2,
+      "selection": "item",
+      "source": "https://alchemyfactoryrecipes.com/guides/logistics#splitters-mergers-filters-and-storage"
+    }
+  }
+}

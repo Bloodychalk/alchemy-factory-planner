@@ -217,7 +217,10 @@
               <button id="tab-text" role="tab" aria-selected="true">
                 简介模式</button
               ><button id="tab-graph" role="tab" aria-selected="false">
-                图形模式
+                图形模式-总览
+              </button>
+              <button id="tab-detail" role="tab" aria-selected="false">
+                图形模式-详细
               </button>
             </div>
             <div>
@@ -246,6 +249,47 @@
                 <tbody id="steps"></tbody>
               </table>
             </div>
+          </div>
+          <div id="detail-view" class="hidden" role="tabpanel">
+            <div id="detail-error" role="alert" class="hidden"></div>
+            <div class="detail-tools">
+              <button id="detail-fit" class="small">适配视图</button
+              ><button
+                id="detail-zoom-in"
+                class="small"
+                aria-label="放大详细图"
+              >
+                <svg
+                  aria-hidden="true"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"
+                >
+                  <path d="M12 4v16M4 12h16" />
+                </svg></button
+              ><button
+                id="detail-zoom-out"
+                class="small"
+                aria-label="缩小详细图"
+              >
+                <svg
+                  aria-hidden="true"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"
+                >
+                  <path d="M4 12h16" />
+                </svg></button
+              ><span id="detail-count"></span>
+            </div>
+            <div id="detail-canvas"></div>
+            <pre id="detail-inspect" class="hidden"></pre>
           </div>
           <div id="graph-view" role="tabpanel" class="hidden">
             <iframe

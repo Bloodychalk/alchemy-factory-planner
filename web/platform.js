@@ -18,6 +18,8 @@ export const storage = {
 };
 export async function saveFile(name, text, type = "application/json") {
   const blob = new Blob([text], { type });
+  if (blob.size > 20_000_000)
+    throw new Error("文件超过20 MB，无法保存为可重新导入的方案");
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;

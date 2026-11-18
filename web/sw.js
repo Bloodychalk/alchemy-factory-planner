@@ -1,4 +1,4 @@
-const CACHE = "alchemy-factory-planner-shell-v1.0.8";
+const CACHE = "alchemy-factory-planner-shell-v1.0.9";
 const FILES = [
   "./",
   "./index.html",
@@ -13,6 +13,12 @@ const FILES = [
   "./patches.js",
   "./planning.js",
   "./worker.js",
+  "./logistics.js",
+  "./logistics-rules.json",
+  "./detail-view.js",
+  "./vendor/g6.min.js",
+  "./vendor/elk.bundled.js",
+  "./vendor/elk-worker.min.js",
   "./upstream.json",
 ];
 self.addEventListener("install", (event) =>

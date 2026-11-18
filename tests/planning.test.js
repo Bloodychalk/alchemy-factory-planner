@@ -359,3 +359,168 @@ test("custom paradox inputs and catalyst modifiers use the reference rules", asy
     plan.steps.some((s) => s.recipe.customInputSlot && s.inputs.Limestone > 0),
   );
 });
+
+test("device network: full machines followed by one partial, every port has one actual segment", async () => {
+  const { buildDetailedPlan, auditDetailedPlan } =
+    await import("../web/logistics.js");
+  const rules = JSON.parse(
+    fs.readFileSync(new URL("../web/logistics-rules.json", import.meta.url)),
+  );
+  for (const [amount, count, tail] of [
+    [60, 2, 1],
+    [72, 3, 0.4],
+    [90, 3, 1],
+  ]) {
+    const result = await compute("Plank", { amount });
+    const overview = Object.values(result.plan.graph.nodes).find((n) => n.recipeId === "Plank");
+    assert.equal(overview.machineCount, count);
+    assert.ok(Math.abs(overview.theoreticalCount - amount / 30) < 1e-6);
+    const detail = buildDetailedPlan(result.plan, result.db, rules);
+    assert.equal(detail.status, "ready", detail.issues?.join(";"));
+    const saws = detail.nodes.filter((n) => n.machine === "Table Saw");
+    assert.equal(saws.length, count);
+    assert.ok(Math.abs(saws.at(-1).load - tail) < 1e-6);
+    assert.equal(auditDetailedPlan(detail).length, 0);
+    assert.ok(
+      detail.edges
+        .filter((e) => e.kind === "belt")
+        .every((e) => e.rate <= e.capacity + 1e-6),
+    );
+    assert.ok(detail.nodes.some((n) => n.kind === "purchase"));
+    assert.ok(detail.nodes.some((n) => n.kind === "bank"));
+    assert.ok(detail.nodes.some((n) => n.kind === "splitter"));
+  }
+});
+test("heat supply ends at actual furnaces and consumers, unknown rules block only detail", async () => {
+  const { buildDetailedPlan, auditDetailedPlan } =
+    await import("../web/logistics.js");
+  const rules = JSON.parse(
+    fs.readFileSync(new URL("../web/logistics-rules.json", import.meta.url)),
+  );
+  const result = await compute("Iron Ingot", { amount: 10 });
+  const detail = buildDetailedPlan(result.plan, result.db, rules);
+  assert.equal(detail.status, "ready", detail.issues?.join(";"));
+  assert.ok(detail.edges.some((e) => e.kind === "heat"));
+  assert.equal(auditDetailedPlan(detail).length, 0);
+  const unknown = buildDetailedPlan(result.plan, result.db, {
+    version: 1,
+    machines: {},
+  });
+  assert.equal(unknown.status, "blocked");
+  assert.ok(unknown.issues.length);
+  assert.equal(result.plan.desired, 10);
+  const broken = structuredClone(detail);
+  broken.edges[0].rate *= 2;
+  assert.ok(auditDetailedPlan(broken).length);
+  for (const mutate of [
+    (d) => { d.edges[0].source = "not-the-port-owner"; },
+    (d) => { d.edges.find((e) => e.kind === "belt").capacity = null; },
+    (d) => { d.edges[0].flows = { invalid: NaN }; },
+  ]) {
+    const bad = structuredClone(detail);
+    mutate(bad);
+    assert.ok(auditDetailedPlan(bad).length);
+  }
+});
+test("belt bottlenecks add real devices and unknown routing rules stop expansion", async () => {
+  const { buildDetailedPlan, auditDetailedPlan } = await import("../web/logistics.js");
+  const rules = JSON.parse(fs.readFileSync(new URL("../web/logistics-rules.json", import.meta.url)));
+  const result = await compute("Coke", { amount: 10, preferredRecipes: {...preferredRecipes, Coke: "Coke"} });
+  const detail = buildDetailedPlan(result.plan, result.db, rules);
+  assert.equal(detail.status, "ready", detail.issues?.join(";"));
+  const athanors = detail.nodes.filter((n) => n.machine === "Athanor");
+  assert.ok(athanors.length > result.plan.steps.find((s) => s.machine === "Athanor").installed);
+  assert.ok(athanors.every((n) => n.load < 1));
+  assert.deepEqual(auditDetailedPlan(detail), []);
+  const withoutRouting = buildDetailedPlan(result.plan, result.db, {...rules, logisticsDevices: {}});
+  assert.equal(withoutRouting.status, "blocked");
+  assert.ok(withoutRouting.issues.some((s) => s.includes("物流构件规则")));
+});
+test("a thousand devices remain individual and all belts stay within capacity", async () => {
+  const { buildDetailedPlan, auditDetailedPlan } =
+    await import("../web/logistics.js");
+  const rules = JSON.parse(
+    fs.readFileSync(new URL("../web/logistics-rules.json", import.meta.url)),
+  );
+  const result = await compute("Plank", { amount: 30000 });
+  const start = performance.now();
+  const d = buildDetailedPlan(result.plan, result.db, rules);
+  assert.equal(d.status, "ready", d.issues?.join(";"));
+  assert.equal(d.nodes.filter((n) => n.machine === "Table Saw").length, 1000);
+  assert.deepEqual(auditDetailedPlan(d), []);
+  assert.ok(performance.now() - start < 20000);
+});
+test("shared outputs require a physical filter before material fan-out", async () => {
+  const { buildDetailedPlan, auditDetailedPlan } =
+    await import("../web/logistics.js");
+  const rules = JSON.parse(
+    fs.readFileSync(new URL("../web/logistics-rules.json", import.meta.url)),
+  );
+  const r = await compute("Gloom Fungus", { amount: 1 });
+  const d = buildDetailedPlan(r.plan, r.db, rules);
+  assert.equal(d.status, "ready", d.issues?.join(";"));
+  assert.ok(d.nodes.some((n) => n.kind === "filter"));
+  assert.deepEqual(auditDetailedPlan(d), []);
+});
+test("fertilizer and verified liquid rates connect to explicit consumers", async () => {
+  const { buildDetailedPlan, auditDetailedPlan } =
+    await import("../web/logistics.js");
+  const rules = JSON.parse(
+    fs.readFileSync(new URL("../web/logistics-rules.json", import.meta.url)),
+  );
+  const p = {
+    request: { item: "Sage", levels: {} },
+    settings: { selectedHeatingDevice: "Stone Furnace" },
+    fuel: "Coal",
+    fertilizer: "Basic Fertilizer",
+    desired: 30,
+    purchases: { "Basic Fertilizer": 1 },
+    surplus: {},
+    steps: [
+      {
+        key: "plant",
+        machine: "Nursery",
+        recipe: { outputs: { Sage: 1 } },
+        machines: 1,
+        inputs: {},
+        outputs: { Sage: 30 },
+        fuel: 0,
+        fertilizer: 1,
+        nutrients: 144,
+        heat: 0,
+      },
+    ],
+  };
+  const data = clone(db);
+  data.items["Basic Fertilizer"].buyPrice = 10;
+  const d = buildDetailedPlan(p, data, rules);
+  assert.equal(d.status, "ready", d.issues?.join(";"));
+  const plant = d.nodes.find((n) => n.machine === "Nursery");
+  assert.ok(
+    d.edges.some((e) => e.target === plant.id && e.item === "Basic Fertilizer"),
+  );
+  assert.deepEqual(auditDetailedPlan(d), []);
+  const pipePlan = structuredClone(p);
+  pipePlan.request.item = "Linseed Oil";
+  pipePlan.desired = 10;
+  pipePlan.purchases = { Logs: 1 };
+  pipePlan.steps = [
+    {
+      key: "liquid",
+      machine: "Extractor",
+      recipe: { outputs: { "Linseed Oil": 10 } },
+      machines: 1,
+      inputs: { Logs: 1 },
+      outputs: { "Linseed Oil": 10 },
+      fuel: 0,
+      fertilizer: 0,
+      heat: 0,
+    },
+  ];
+  assert.equal(buildDetailedPlan(pipePlan, data, rules).status, "blocked");
+  data.logistics = { pipeCapacity: 100 };
+  const pipe = buildDetailedPlan(pipePlan, data, rules);
+  assert.equal(pipe.status, "ready", pipe.issues?.join(";"));
+  assert.ok(pipe.edges.some((e) => e.kind === "pipe"));
+  assert.deepEqual(auditDetailedPlan(pipe), []);
+});

@@ -48,7 +48,7 @@ jobs:
         env:
           EVENT_NAME: ${{ github.event_name }}
         run: |
-          if [ "$EVENT_NAME" != "push" ] || ! git diff --quiet HEAD^ HEAD -- web/planning.js web/data.js web/runtime.js web/patches.js web/worker.js web/upstream.json data_tools tests; then
+          if [ "$EVENT_NAME" != "push" ] || ! git diff --quiet HEAD^ HEAD -- web/planning.js web/logistics.js web/logistics-rules.json web/data.js web/runtime.js web/patches.js web/worker.js web/upstream.json data_tools tests; then
             echo "full=true" >> "$GITHUB_OUTPUT"
           fi
       - name: Prepare verified reference for calculation tests

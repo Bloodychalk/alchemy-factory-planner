@@ -167,7 +167,7 @@ export async function graphDocument(payload, progress = () => {}) {
       const localizeImages = () => {
         document.querySelectorAll('img[src^="img/"]').forEach(img=>{const n=img.getAttribute('src'); if(referenceBridge.images[n]) img.src=referenceBridge.images[n];else img.style.display='none';});
         document.querySelectorAll('.planner-port-name').forEach(el=>{const translated=ALCHEMY_I18N.items[el.textContent];if(translated&&translated!==el.textContent)el.textContent=translated;});
-        document.querySelectorAll('input[data-mc-for]').forEach(el=>{const n=plannerState.nodes[el.dataset.mcFor];if(!n)return;el.readOnly=true;el.disabled=true;if(n.recipeId.startsWith('boundary-'))el.closest('.planner-machine-count-row').style.display='none';else{el.value=Math.ceil(n.machineCount-1e-7);el.title='建造台数；理论负载 '+n.machineCount.toFixed(3)+' 台';}});
+        document.querySelectorAll('input[data-mc-for]').forEach(el=>{const n=plannerState.nodes[el.dataset.mcFor];if(!n)return;el.readOnly=true;el.disabled=true;if(n.recipeId.startsWith('boundary-'))el.closest('.planner-machine-count-row').style.display='none';else{el.value=Math.ceil(n.machineCount-1e-7);el.title='建造台数；理论负载 '+(n.theoreticalCount??n.machineCount).toFixed(3)+' 台';}});
       };
       new MutationObserver(localizeImages).observe(document.body,{subtree:true,childList:true}); localizeImages();
       document.querySelectorAll('.planner-port-dot').forEach(el=>el.style.pointerEvents='none');

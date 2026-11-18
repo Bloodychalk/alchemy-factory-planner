@@ -1,3 +1,4 @@
+import { renderDetail, destroyDetail, detailLayout } from "./detail-view.js";
 import { perMinute, validateDataset, canonicalizeDataset } from "./data.js";
 import { storage, saveFile } from "./platform.js";
 import { loadReference, graphDocument } from "./runtime.js";
@@ -14,7 +15,8 @@ let reference,
   mode = "text",
   graphKey = "",
   busy = false,
-  pendingLayout = null;
+  pendingLayout = null,
+  pendingChoice = null;
 const tr = (k) =>
   reference?.translations.items?.[k] ||
   reference?.translations.machines?.[k] ||
@@ -212,6 +214,7 @@ async function newWorker() {
       showMessage(data.error, true);
       return;
     }
+    destroyDetail();
     plan = data.plan;
     planDb = data.db;
     if (pendingLayout) {
@@ -259,6 +262,11 @@ async function calculate(event) {
   if (busy) return;
   try {
     const request = gather();
+    if (pendingChoice) {
+      request.preferredRecipes = pendingChoice.preferredRecipes;
+      request.modifiers = pendingChoice.recipeModifiers || request.modifiers;
+      pendingChoice = null;
+    }
     perMinute(request.amount, request.unit);
     setBusy(true);
     showMessage("正在比较可行生产路线…");
@@ -301,6 +309,7 @@ function renderPlan() {
   $("save-plan").disabled = false;
   showMessage("产线已生成。简介和图形使用同一份配平结果。");
   if (mode === "graph") renderGraph();
+  if (mode === "detail") renderDetailed();
 }
 async function renderGraph() {
   if (!plan || graphKey === plan.createdAt) return;
@@ -321,11 +330,25 @@ async function renderGraph() {
 function switchMode(value) {
   mode = value;
   $("text-view").classList.toggle("hidden", value !== "text");
+  $("detail-view").classList.toggle("hidden", value !== "detail");
+  $("tab-detail").setAttribute("aria-selected", String(value === "detail"));
   $("graph-view").classList.toggle("hidden", value !== "graph");
   $("tab-text").setAttribute("aria-selected", String(value === "text"));
   $("tab-graph").setAttribute("aria-selected", String(value === "graph"));
   if (value === "graph") renderGraph();
+  if (value === "detail") renderDetailed();
 }
+let pendingDetailLayout = null;
+async function renderDetailed() {
+  const revision = plan?.createdAt;
+  try {
+    await renderDetail(plan, reference.translations, pendingDetailLayout);
+    if (plan?.createdAt === revision) pendingDetailLayout = null;
+  } catch (e) {
+    if (plan?.createdAt === revision) showMessage(e.message, true);
+  }
+}
+$("tab-detail").onclick = () => switchMode("detail");
 let fileMode = "data";
 function pickFile(mode) {
   fileMode = mode;
@@ -339,7 +362,11 @@ $("file-input").addEventListener("change", async (event) => {
     if (file.size > 20_000_000) throw new Error("文件超过 20 MB");
     const parsed = JSON.parse(await file.text());
     if (fileMode === "plan") {
-      if (parsed.schemaVersion !== 1 || !parsed.plan?.request || !parsed.db)
+      if (
+        ![1, 2].includes(parsed.schemaVersion) ||
+        !parsed.plan?.request ||
+        !parsed.db
+      )
         throw new Error("不是有效的产线方案文件");
       const next = validateDataset(
         canonicalizeDataset(parsed.db, reference.translations),
@@ -349,8 +376,20 @@ $("file-input").addEventListener("change", async (event) => {
         throw new Error("方案目标物品不存在");
       db = next;
       pendingLayout = parsed.plan.graph;
+      pendingDetailLayout = parsed.plan.detailLayout;
       updateDataset();
-      restoreRequest(parsed.plan.request);
+      pendingChoice = parsed.plan.settings || null;
+      const item = parsed.plan.request.item;
+      restoreRequest({
+        ...parsed.plan.request,
+        fuel: parsed.plan.fuel || parsed.plan.request.fuel,
+        fertilizer: parsed.plan.fertilizer || parsed.plan.request.fertilizer,
+        recipeId:
+          pendingChoice?.preferredRecipes?.[item] ||
+          parsed.plan.request.recipeId,
+        modifiers:
+          pendingChoice?.recipeModifiers || parsed.plan.request.modifiers,
+      });
       showMessage("方案参数已载入，正在重新复核…");
       await calculate();
     } else {
@@ -359,7 +398,11 @@ $("file-input").addEventListener("change", async (event) => {
       );
       db = checked.db;
       storage.set("dataset", db);
+      destroyDetail();
       plan = null;
+      pendingChoice = null;
+      pendingLayout = null;
+      pendingDetailLayout = null;
       updateDataset();
       $("output").classList.add("hidden");
       $("save-plan").disabled = true;
@@ -408,7 +451,15 @@ $("save-plan").onclick = async () => {
   }
   return saveFile(
     "alchemy-plan.json",
-    JSON.stringify({ schemaVersion: 1, plan, db: planDb }, null, 2),
+    JSON.stringify(
+      {
+        schemaVersion: 2,
+        plan: { ...plan, detailLayout: detailLayout() },
+        db: planDb,
+      },
+      null,
+      2,
+    ),
   ).catch((e) => showMessage(e.message, true));
 };
 $("export-text").onclick = () =>

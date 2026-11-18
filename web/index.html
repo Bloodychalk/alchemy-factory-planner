@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#182f2a">
+    <meta name="description" content="炼金工厂产线计算器项目，正在筹备配方导入、产量规划与产线图形展示。">
+    <title>炼金工厂 · 产线计算器</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳到主要内容</a>
+    <header class="site-header wrap">
+      <a class="brand" href="./" aria-label="炼金工厂产线计算器首页"><span class="brand-mark" aria-hidden="true">⚗</span> 炼金工厂 <span class="brand-detail">产线计算器</span></a>
+      <a class="repo-link" href="https://github.com/Bloodychalk/alchemy-factory-planner">项目仓库 <span aria-hidden="true">↗</span></a>
+    </header>
+    <main id="main" class="wrap">
+      <section class="hero" aria-labelledby="title">
+        <div>
+          <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> 项目筹备中</p>
+          <h1 id="title">从一个产物，<br>规划一条产线。</h1>
+          <p class="intro">面向《炼金工厂》的生产规划工具。计划将配方、原料、机器与供热需求整理成清晰的建造方案。</p>
+          <p class="notice">当前上线的是项目入口，计算功能尚未接入。</p>
+          <a class="button" href="https://github.com/Bloodychalk/alchemy-factory-planner#readme">查看项目进度 <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="diagram" role="img" aria-label="概念流程示意：原料经过加工与供热形成产物，并提供文字和图形展示；此图不代表实际游戏配方。">
+          <div class="diagram-caption">PRODUCTION FLOW <span>概念示意</span></div>
+          <div class="flow"><div class="node"><span>01</span><strong>原料</strong><small>采购与投入</small></div><span class="arrow" aria-hidden="true">→</span><div class="node node-process"><span>02</span><strong>加工</strong><small>机器与供热</small></div><span class="arrow" aria-hidden="true">→</span><div class="node"><span>03</span><strong>产物</strong><small>目标净产量</small></div></div>
+          <div class="diagram-bottom"><span>文字简介</span><span>图形产线</span><span>同一份计算结果</span></div>
+        </div>
+      </section>
+      <section class="roadmap" aria-labelledby="roadmap-title">
+        <div class="section-top"><h2 id="roadmap-title">接下来，逐步接入</h2><span>计划功能</span></div>
+        <div class="cards">
+          <article><p class="step">01 / 数据</p><h3>导入配方</h3><p>读取 JSON 配方，校验物品、机器、加工时间与原料关系。</p></article>
+          <article><p class="step">02 / 计算</p><h3>设定目标产量</h3><p>支持个/分钟、个/秒与秒/个，综合原料、燃料及肥料需求。</p></article>
+          <article><p class="step">03 / 展示</p><h3>读懂建造方案</h3><p>用文字清单查看采购与机器数量，用流程图查看生产关系。</p></article>
+        </div>
+      </section>
+      <aside class="references" aria-label="现有参考工具">
+        <div><h2>需要现在计算？</h2><p>可以先使用现有参考工具，它们由各自的作者维护。</p></div>
+        <div class="reference-links"><a href="https://starfi5h.github.io/AlchemyFactoryCalculator/">现有社区计算器 ↗</a><a href="https://alchemy-factory-codex.com/production-planner/">Wiki 产线规划器 ↗</a></div>
+      </aside>
+    </main>
+    <footer class="wrap"><span>Alchemy Factory · 社区项目，与游戏官方无关联</span><span>配方数据及第三方代码将在授权确认后接入。</span></footer>
+  </body>
+</html>

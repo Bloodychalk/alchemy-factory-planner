@@ -15,7 +15,7 @@ from zipfile import ZipFile
 _LOCK = threading.RLock()
 
 def resources() -> Path:
-    return Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parents[1])) / "web"
+    return Path(__file__).resolve().parents[1] / "web"
 
 def user_directory() -> Path:
     if sys.platform == "darwin":

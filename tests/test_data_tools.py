@@ -3,26 +3,12 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
-import io
-from contextlib import redirect_stdout
-from unittest.mock import patch
-from desktop.runtime import ReferenceCache, atomic_write
-from desktop.wiki import synchronize
+from data_tools.runtime import ReferenceCache, atomic_write
+from data_tools.wiki import synchronize
 
 ROOT = Path(__file__).resolve().parents[1]
 
-class DesktopTests(unittest.TestCase):
-    def test_prepare_supports_non_utf8_windows_terminal(self):
-        from desktop.main import main
-        output=io.BytesIO()
-        stream=io.TextIOWrapper(output,encoding="cp1252")
-        with patch("sys.argv",["alchemy-planner","--prepare"]), patch("desktop.main.ReferenceCache") as cache:
-            cache.return_value.root=Path("资料/参考缓存")
-            with redirect_stdout(stream):
-                main()
-                stream.flush()
-                self.assertIn("参考资料已准备",output.getvalue().decode("utf-8"))
-
+class DataTests(unittest.TestCase):
     def test_atomic_save(self):
         with tempfile.TemporaryDirectory() as directory:
             path=Path(directory)/"plan.json"

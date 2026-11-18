@@ -16,34 +16,7 @@ export const storage = {
     }
   },
 };
-let bridgeResolve;
-const bridgeReady = new Promise((resolve) => {
-  bridgeResolve = resolve;
-});
-window.addEventListener(
-  "pywebviewready",
-  () => bridgeResolve(window.pywebview.api),
-  { once: true },
-);
-export async function desktopAPI() {
-  if (!window.pywebview && !window.ALCHEMY_DESKTOP) return null;
-  if (typeof window.pywebview?.api?.runtime_asset === "function")
-    return window.pywebview.api;
-  let timer;
-  return Promise.race([
-    bridgeReady,
-    new Promise((resolve) => {
-      timer = setTimeout(() => resolve(null), 5000);
-    }),
-  ]).finally(() => clearTimeout(timer));
-}
 export async function saveFile(name, text, type = "application/json") {
-  const api = await desktopAPI();
-  if (api) {
-    const result = await api.save_file(name, text);
-    if (!result.ok && !result.cancelled) throw new Error(result.error);
-    return;
-  }
   const blob = new Blob([text], { type });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");

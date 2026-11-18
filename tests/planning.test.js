@@ -87,32 +87,6 @@ const compute = (item, extra = {}, options = {}) =>
     { timeLimit: 100, ...options },
   );
 
-test("desktop waits for Python methods when the bridge object is still empty", async () => {
-  const previousWindow = globalThis.window;
-  const window = new EventTarget();
-  window.ALCHEMY_DESKTOP = true;
-  window.pywebview = { api: {} };
-  globalThis.window = window;
-  try {
-    const { desktopAPI } = await import("../web/platform.js?bridge-regression");
-    let resolved = false;
-    const pending = desktopAPI().then((api) => {
-      resolved = true;
-      return api;
-    });
-    await new Promise((resolve) => setImmediate(resolve));
-    assert.equal(resolved, false);
-    const ready = { runtime_asset: () => {} };
-    window.pywebview.api = ready;
-    window.dispatchEvent(new Event("pywebviewready"));
-    assert.equal(await pending, ready);
-    assert.equal(await desktopAPI(), ready);
-  } finally {
-    if (previousWindow === undefined) delete globalThis.window;
-    else globalThis.window = previousWindow;
-  }
-});
-
 test("pinned data and translations parse without executing JS", () => {
   const validated = validateDataset(db);
   assert.equal(Object.keys(validated.db.items).length, 157);

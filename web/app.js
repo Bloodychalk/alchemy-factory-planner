@@ -1,5 +1,5 @@
 import { perMinute, validateDataset, canonicalizeDataset } from "./data.js";
-import { storage, saveFile, desktopAPI } from "./platform.js";
+import { storage, saveFile } from "./platform.js";
 import { loadReference, graphDocument } from "./runtime.js";
 import { describePlan } from "./planning.js";
 const $ = (id) => document.getElementById(id);
@@ -21,7 +21,7 @@ const tr = (k) =>
   k;
 const showMessage = (text, error = false) => {
   $("message").textContent = text;
-  $("message").classList.toggle("error", error);
+  $("message").classList.toggle("hidden", !error);
 };
 const esc = (text) =>
   String(text).replace(
@@ -180,8 +180,7 @@ function setBusy(value) {
   busy = value;
   for (const el of $("target-form").querySelectorAll("input,select"))
     el.disabled = value;
-  for (const id of ["import-data", "load-plan", "sync-wiki"])
-    $(id).disabled = value;
+  for (const id of ["import-data", "load-plan"]) $(id).disabled = value;
   $("calculate").disabled = value;
   $("calculate").firstChild.textContent = value
     ? "正在比较路线…"
@@ -236,8 +235,6 @@ async function newWorker() {
     renderPlan();
     storage.set("request", plan.request);
     storage.set("last-plan", { plan, db: planDb });
-    const api = await desktopAPI();
-    if (api) api.autosave(JSON.stringify({ plan, db: planDb })).catch(() => {});
   };
   worker.postMessage({
     type: "init",
@@ -274,7 +271,6 @@ async function calculate(event) {
   }
 }
 function renderPlan() {
-  $("empty").classList.add("hidden");
   $("output").classList.remove("hidden");
   $("result-title").textContent = tr(plan.request.item) + "的推荐产线";
   $("metric-output").textContent = fmt(plan.desired);
@@ -302,9 +298,6 @@ function renderPlan() {
       return r;
     }),
   );
-  $("report").textContent = describePlan(plan, reference.translations);
-  $("audit").textContent =
-    `✓ 已复核物料、热量与营养平衡 · 比较 ${plan.search.evaluated} 个候选 · ${plan.search.timedOut ? "达到搜索时限" : "有界搜索完成"} · 概率产出采用长期平均值，需缓冲库存`;
   $("save-plan").disabled = false;
   showMessage("产线已生成。简介和图形使用同一份配平结果。");
   if (mode === "graph") renderGraph();
@@ -366,11 +359,9 @@ $("file-input").addEventListener("change", async (event) => {
       );
       db = checked.db;
       storage.set("dataset", db);
-      desktopAPI().then((api) => api?.save_dataset(JSON.stringify(db)));
       plan = null;
       updateDataset();
       $("output").classList.add("hidden");
-      $("empty").classList.remove("hidden");
       $("save-plan").disabled = true;
       showMessage(
         `资料导入成功。${checked.warnings.length ? checked.warnings.length + " 项规则待核验。" : ""}`,
@@ -421,35 +412,19 @@ $("save-plan").onclick = async () => {
   ).catch((e) => showMessage(e.message, true));
 };
 $("export-text").onclick = () =>
-  saveFile("alchemy-plan.txt", $("report").textContent, "text/plain").catch(
-    (e) => showMessage(e.message, true),
-  );
+  saveFile(
+    "alchemy-plan.txt",
+    describePlan(plan, reference.translations),
+    "text/plain",
+  ).catch((e) => showMessage(e.message, true));
 $("copy").onclick = async () => {
   try {
-    await navigator.clipboard.writeText($("report").textContent);
+    await navigator.clipboard.writeText(
+      describePlan(plan, reference.translations),
+    );
     showMessage("简介已复制。");
   } catch {
-    showMessage("浏览器未允许剪贴板，请使用导出文字。");
-  }
-};
-$("sync-wiki").onclick = async () => {
-  const api = await desktopAPI();
-  if (!api) return;
-  showMessage("正在读取 Wiki 并校准重叠配方…");
-  $("sync-wiki").disabled = true;
-  try {
-    const result = await api.sync_wiki(JSON.stringify(db));
-    if (!result.ok) throw new Error(result.error);
-    db = validateDataset(JSON.parse(result.data)).db;
-    storage.set("dataset", db);
-    updateDataset();
-    showMessage(
-      `Wiki 校准完成：更新 ${result.updated} 条配方，保留特殊设备变体。${result.warnings.length ? "详情已写入资料来源记录。" : ""}`,
-    );
-  } catch (e) {
-    showMessage("同步失败，旧资料保持不变：" + e.message, true);
-  } finally {
-    $("sync-wiki").disabled = false;
+    showMessage("浏览器未允许剪贴板，请使用导出文字。", true);
   }
 };
 window.addEventListener("message", (event) => {
@@ -476,9 +451,7 @@ window.addEventListener("message", (event) => {
 try {
   reference = await loadReference();
   db = reference.db;
-  const api = await desktopAPI();
-  const saved = api ? await api.load_dataset() : null;
-  const stored = saved?.data ? JSON.parse(saved.data) : storage.get("dataset");
+  const stored = storage.get("dataset");
   if (stored) {
     try {
       db = validateDataset(
@@ -487,11 +460,6 @@ try {
     } catch {
       showMessage("旧资料校验失败，已使用参考资料。");
     }
-  }
-  if (api && !stored) {
-    showMessage("首次使用：正在按 Wiki 校准配方…");
-    const synced = await api.sync_wiki(JSON.stringify(db));
-    if (synced.ok) db = validateDataset(JSON.parse(synced.data)).db;
   }
   updateDataset();
   const remembered = storage.get("request");
@@ -502,27 +470,10 @@ try {
       : Object.keys(db.items)[0];
     updateRecipes();
   }
-  $("connection").textContent = "资料已就绪";
-  showMessage(
-    "资料已就绪。选择目标并计算，得到包含燃料和肥料自产链的推荐方案。",
-  );
-  if (api) {
-    $("sync-wiki").classList.remove("hidden");
-    const restored = await api.restore();
-    if (restored.ok && restored.data && !remembered) {
-      try {
-        restoreRequest(JSON.parse(restored.data).plan.request);
-      } catch {}
-    }
-  }
-  if ("serviceWorker" in navigator && !api)
+  if ("serviceWorker" in navigator)
     navigator.serviceWorker
       .register(new URL("./sw.js", import.meta.url))
       .catch(() => {});
 } catch (e) {
-  $("connection").textContent = "资料未就绪";
-  showMessage(
-    "准备资料失败：" + e.message + "。请联网后刷新，或在桌面版重试。",
-    true,
-  );
+  showMessage("准备资料失败：" + e.message + "。请联网后刷新。", true);
 }

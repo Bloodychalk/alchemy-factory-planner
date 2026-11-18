@@ -19,20 +19,18 @@
         ><span>炼金工厂<small>PRODUCTION PLANNER</small></span></a
       >
       <div class="top-actions">
-        <span id="connection" class="status">正在准备</span
-        ><a
+        <a
           href="https://github.com/Bloodychalk/alchemy-factory-planner"
           target="_blank"
           rel="noopener"
-          >项目 ↗</a
+          >github仓库</a
         >
       </div>
     </header>
     <main class="workspace">
       <aside class="sidebar">
         <form id="target-form">
-          <label for="item-search"
-            >目标产物 <span class="optional">支持中英文搜索</span></label
+          <label for="item-search">目标产物</label
           ><input
             id="item-search"
             type="search"
@@ -154,21 +152,15 @@
                 />比较炼金锅组合路线</label
               ><label for="heater">加热设备</label
               ><select id="heater"></select>
-              <p class="field-hint">
-                推荐路线包含燃料、肥料的自产链。概率产出按长期平均计算。
-              </p>
             </div>
           </details>
         </form>
         <div class="data-panel">
           <div class="data-title">配方资料 <span id="data-count">—</span></div>
-          <p id="data-source" class="field-hint">
-            首次使用将准备并缓存参考资料。
-          </p>
+          <p id="data-source" class="field-hint"></p>
           <div class="data-buttons">
             <button id="import-data" class="small">导入 JSON</button
-            ><button id="export-data" class="small" disabled>导出资料</button
-            ><button id="sync-wiki" class="small hidden">校准 Wiki</button>
+            ><button id="export-data" class="small" disabled>导出资料</button>
           </div>
         </div>
       </aside>
@@ -180,19 +172,7 @@
             ><button id="save-plan" class="small" disabled>保存方案</button>
           </div>
         </div>
-        <div id="message" role="status" aria-live="polite" class="message">
-          正在准备计算资料，请稍候…
-        </div>
-        <div id="empty" class="empty">
-          <div class="empty-orbit"><span>⚗</span><i></i><i></i></div>
-          <h3>一条完整产线，从一个产物开始。</h3>
-          <p>
-            选择左侧物品，设定产量，然后点击计算。<br />工具会比较生产路线，并合并共享原料与回收流量。
-          </p>
-          <div class="empty-tags">
-            <span>物料守恒</span><span>燃料自供</span><span>自动排布</span>
-          </div>
-        </div>
+        <div id="message" role="alert" class="message error hidden"></div>
         <div id="output" class="hidden">
           <div class="metrics">
             <article>
@@ -228,12 +208,10 @@
           <div id="text-view" role="tabpanel">
             <div class="section-title">
               <h3>采购与供给</h3>
-              <span>已扣除内部自耗</span>
             </div>
             <div id="purchases" class="purchase-list"></div>
             <div class="section-title">
               <h3>建造清单</h3>
-              <span>同配方合并后取整</span>
             </div>
             <div class="table-wrap">
               <table>
@@ -248,22 +226,14 @@
                 <tbody id="steps"></tbody>
               </table>
             </div>
-            <details class="report-details">
-              <summary>完整文字报告、供热与副产物</summary>
-              <pre id="report"></pre>
-            </details>
           </div>
           <div id="graph-view" role="tabpanel" class="hidden">
-            <p class="graph-hint">
-              拖动节点整理位置，滚轮缩放。图形展示同一份已复核结果；修改生产参数后请重新计算。
-            </p>
             <iframe
               id="graph"
               title="产线流程图"
               sandbox="allow-scripts"
             ></iframe>
           </div>
-          <p id="audit" class="audit"></p>
         </div>
       </section>
     </main>

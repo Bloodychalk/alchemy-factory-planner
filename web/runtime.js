@@ -1,5 +1,4 @@
 import { readLiteral, validateDataset } from "./data.js";
-import { desktopAPI } from "./platform.js";
 import { patchSource } from "./patches.js";
 const manifest = await fetch(new URL("./upstream.json", import.meta.url)).then(
   (r) => {
@@ -13,36 +12,27 @@ export async function asset(name) {
   if (memory.has(name)) return memory.get(name);
   const expected = manifest.files[name];
   if (!expected) throw new Error(`未登记的参考文件：${name}`);
-  const api = await desktopAPI();
   let data;
-  if (api) {
-    const r = await api.runtime_asset(name);
-    if (!r.ok) throw new Error(r.error);
-    data = Uint8Array.from(atob(r.data), (c) => c.charCodeAt(0));
-  } else {
-    const url = manifest.baseUrl + name;
-    const cache =
-      "caches" in window
-        ? await caches.open("alchemy-factory-planner-reference-v1")
-        : null;
-    let response = await cache?.match(url);
-    if (!response) {
-      response = await fetch(url);
-      if (!response.ok)
-        throw new Error(`无法下载参考文件 ${name}（${response.status}）`);
-    }
-    data = new Uint8Array(await response.arrayBuffer());
-    const hash = [
-      ...new Uint8Array(await crypto.subtle.digest("SHA-256", data)),
-    ]
-      .map((v) => v.toString(16).padStart(2, "0"))
-      .join("");
-    if (hash !== expected) {
-      await cache?.delete(url);
-      throw new Error(`参考文件校验失败：${name}`);
-    }
-    await cache?.put(url, new Response(data));
+  const url = manifest.baseUrl + name;
+  const cache =
+    "caches" in window
+      ? await caches.open("alchemy-factory-planner-reference-v1")
+      : null;
+  let response = await cache?.match(url);
+  if (!response) {
+    response = await fetch(url);
+    if (!response.ok)
+      throw new Error(`无法下载参考文件 ${name}（${response.status}）`);
   }
+  data = new Uint8Array(await response.arrayBuffer());
+  const hash = [...new Uint8Array(await crypto.subtle.digest("SHA-256", data))]
+    .map((v) => v.toString(16).padStart(2, "0"))
+    .join("");
+  if (hash !== expected) {
+    await cache?.delete(url);
+    throw new Error(`参考文件校验失败：${name}`);
+  }
+  await cache?.put(url, new Response(data));
   memory.set(name, data);
   return data;
 }
@@ -164,7 +154,7 @@ export async function graphDocument(payload, progress = () => {}) {
       plannerGetNodeRates=function(node){return node.resolved||originalGetRates(node);};
       renderPlannerSummary=function(){
         const panel=ensurePlannerSummaryPanel();panel.replaceChildren();
-        for(const text of ['已复核产线', '净交付 '+p.plan.desired.toFixed(2)+' /分钟', '持续采购 '+p.plan.cost.toFixed(2)+' 铜/分钟', '生产与供热设备 '+p.plan.installed+' 台', '加工热耗 '+p.plan.heat.toFixed(2)+' /秒']){const row=document.createElement('div');row.style.padding='5px 12px';row.textContent=text;panel.appendChild(row);}
+        for(const text of ['净交付 '+p.plan.desired.toFixed(2)+' /分钟', '持续采购 '+p.plan.cost.toFixed(2)+' 铜/分钟', '生产与供热设备 '+p.plan.installed+' 台', '加工热耗 '+p.plan.heat.toFixed(2)+' /秒']){const row=document.createElement('div');row.style.padding='5px 12px';row.textContent=text;panel.appendChild(row);}
       };
       document.querySelectorAll('header, #update-banner, #view-calc, #view-cauldron, #view-help, #view-db').forEach(e => e.style.display='none');
       const view=document.getElementById('view-planner'); view.style.display='block';

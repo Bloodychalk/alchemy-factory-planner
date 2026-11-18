@@ -1,4 +1,4 @@
-const CACHE = "alchemy-factory-planner-shell-v1.0.2";
+const CACHE = "alchemy-factory-planner-shell-v1.0.3";
 const FILES = [
   "./",
   "./index.html",
@@ -17,7 +17,7 @@ self.addEventListener("install", (event) =>
   event.waitUntil(
     caches
       .open(CACHE)
-      .then((c) => c.addAll(FILES))
+      .then((c) => c.addAll(FILES.map((url) => new Request(url, { cache: "reload" }))))
       .then(() => self.skipWaiting()),
   ),
 );
@@ -45,7 +45,9 @@ self.addEventListener("fetch", (event) => {
   )
     return;
   event.respondWith(
-    fetch(event.request)
+    // Revalidate even while the CDN's browser cache is fresh. Otherwise an
+    // updated shell can still start an older calculation worker for ten minutes.
+    fetch(event.request, { cache: "no-cache" })
       .then((response) => {
         if (response.ok) {
           const copy = response.clone();

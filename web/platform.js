@@ -27,11 +27,15 @@ window.addEventListener(
 );
 export async function desktopAPI() {
   if (!window.pywebview && !window.ALCHEMY_DESKTOP) return null;
-  if (window.pywebview?.api) return window.pywebview.api;
+  if (typeof window.pywebview?.api?.runtime_asset === "function")
+    return window.pywebview.api;
+  let timer;
   return Promise.race([
     bridgeReady,
-    new Promise((resolve) => setTimeout(() => resolve(null), 5000)),
-  ]);
+    new Promise((resolve) => {
+      timer = setTimeout(() => resolve(null), 5000);
+    }),
+  ]).finally(() => clearTimeout(timer));
 }
 export async function saveFile(name, text, type = "application/json") {
   const api = await desktopAPI();

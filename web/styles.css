@@ -112,19 +112,6 @@ a {
   border-right: 1px solid var(--line);
   background: #fbfcf8;
 }
-.eyebrow {
-  letter-spacing: 0.12em;
-  font-size: 10px;
-  font-weight: 600;
-  color: #78917c;
-}
-h1 {
-  font-size: 27px;
-  line-height: 1.45;
-  letter-spacing: -0.04em;
-  margin: 10px 0;
-  font-weight: 650;
-}
 h2 {
   font-size: 26px;
   font-weight: 600;
@@ -135,17 +122,17 @@ h3 {
   font-size: 15px;
   font-weight: 600;
 }
-.muted {
-  font-size: 12px;
-  color: var(--muted);
-  line-height: 1.9;
-  margin-bottom: 28px;
+#result-title:empty {
+  display: none;
 }
 label {
   display: block;
   font-size: 12px;
   font-weight: 600;
   margin: 20px 0 9px;
+}
+#target-form > label:first-child {
+  margin-top: 0;
 }
 .optional {
   float: right;
@@ -292,12 +279,6 @@ summary {
   gap: 6px;
   flex-wrap: wrap;
 }
-.attribution {
-  font-size: 9px;
-  color: #97a191;
-  line-height: 1.9;
-  margin-top: 25px;
-}
 .results {
   padding: 35px 38px;
   min-width: 0;
@@ -312,6 +293,7 @@ summary {
   display: flex;
   gap: 8px;
   flex-shrink: 0;
+  margin-left: auto;
 }
 .message {
   font-size: 12px;
@@ -621,17 +603,8 @@ iframe {
     border-bottom: 1px solid var(--line);
     padding: 25px 22px;
   }
-  h1 {
-    font-size: 24px;
-  }
-  .muted {
-    margin-bottom: 18px;
-  }
   select[size] {
     height: 106px;
-  }
-  .attribution {
-    margin-bottom: 0;
   }
   .results {
     padding: 25px 18px;

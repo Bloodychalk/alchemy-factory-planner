@@ -30,9 +30,6 @@
     </header>
     <main class="workspace">
       <aside class="sidebar">
-        <div class="eyebrow">从目标开始</div>
-        <h1>规划你的下一条产线。</h1>
-        <p class="muted">输入想要的净产量，原料、机器与供热一并配平。</p>
         <form id="target-form">
           <label for="item-search"
             >目标产物 <span class="optional">支持中英文搜索</span></label
@@ -174,29 +171,10 @@
             ><button id="sync-wiki" class="small hidden">校准 Wiki</button>
           </div>
         </div>
-        <p class="attribution">
-          计算与图形基于
-          <a
-            href="https://github.com/starfi5h/AlchemyFactoryCalculator"
-            target="_blank"
-            rel="noopener"
-            >starfi5h / JoeJoesGit</a
-          >，数据可按
-          <a
-            href="https://alchemy-factory-codex.com/production-planner/"
-            target="_blank"
-            rel="noopener"
-            >Wiki</a
-          >
-          校准。非游戏官方工具。
-        </p>
       </aside>
       <section class="results" aria-label="计算结果">
         <div class="result-top">
-          <div>
-            <span class="eyebrow">你的生产蓝图</span>
-            <h2 id="result-title">让每一份原料，都流向目标。</h2>
-          </div>
+          <h2 id="result-title"></h2>
           <div class="result-actions">
             <button id="load-plan" class="small">打开方案</button
             ><button id="save-plan" class="small" disabled>保存方案</button>

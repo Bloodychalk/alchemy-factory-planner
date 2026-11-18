@@ -38,19 +38,22 @@
     <main class="workspace">
       <aside class="sidebar">
         <form id="target-form">
-          <label for="item-search">目标产物</label
-          ><input
-            id="item-search"
-            type="search"
-            placeholder="搜索物品，例如 钢锭"
-            autocomplete="off"
-            disabled
-          /><select
-            id="target-item"
-            aria-label="选择目标产物"
-            size="5"
-            disabled
-          ></select>
+          <label for="item-search">目标产物</label>
+          <div class="item-picker">
+            <input
+              id="item-search"
+              type="search"
+              aria-label="搜索物品"
+              placeholder=" "
+              autocomplete="off"
+              disabled
+            />
+            <select
+              id="target-item"
+              aria-label="选择目标产物"
+              disabled
+            ></select>
+          </div>
           <label for="amount">目标净产量</label>
           <div class="quantity">
             <input

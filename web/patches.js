@@ -18,6 +18,12 @@ export function patchSource(name, text) {
       "if (Number.isFinite(effectivePrice) && effectivePrice >= 0) {",
     );
   }
+  if (name.endsWith("alchemy_planner_calc.js")) {
+    text = text.replace(
+      "const PLANNER_LAYOUT_COL_GAP = 280;",
+      "const PLANNER_LAYOUT_COL_GAP = 420;",
+    );
+  }
   text = text.replace(
     /(["'])alchemy_([a-z_]+)_v1\1/g,
     "$1alchemy-factory-planner:reference:v1:$2$1",

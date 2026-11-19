@@ -1,4 +1,4 @@
-const CACHE = "alchemy-factory-planner-shell-v1.0.9";
+const CACHE = "alchemy-factory-planner-shell-v1.0.10";
 const FILES = [
   "./",
   "./index.html",
@@ -16,6 +16,9 @@ const FILES = [
   "./logistics.js",
   "./logistics-rules.json",
   "./detail-view.js",
+  "./detail-layout.js",
+  "./detail-elements.js",
+  "./graph-theme.js",
   "./vendor/g6.min.js",
   "./vendor/elk.bundled.js",
   "./vendor/elk-worker.min.js",

@@ -710,6 +710,7 @@ iframe {
   flex-wrap: wrap;
 }
 #detail-canvas {
+  overflow: hidden;
   height: 660px;
   width: 100%;
   border: 4px solid #000;

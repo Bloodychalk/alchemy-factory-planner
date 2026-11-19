@@ -1,10 +1,27 @@
-import { renderDetail, destroyDetail, detailLayout } from "./detail-view.js";
+import {
+  renderDetail,
+  destroyDetail,
+  detailLayout,
+  setDetailActive,
+  setDetailLineStyle,
+} from "./detail-view.js";
+import { lineStyle } from "./graph-theme.js";
 import { perMinute, validateDataset, canonicalizeDataset } from "./data.js";
 import { storage, saveFile } from "./platform.js";
 import { loadReference, graphDocument } from "./runtime.js";
 import { describePlan } from "./planning.js";
 const $ = (id) => document.getElementById(id);
 const fmt = (n) => Number(n.toFixed(4)).toLocaleString("zh-CN");
+let edgeStyle = lineStyle(storage.get("edge-style"));
+function changeEdgeStyle(value) {
+  edgeStyle = lineStyle(value);
+  storage.set("edge-style", edgeStyle);
+  setDetailLineStyle(edgeStyle).catch((e) => showMessage(e.message, true));
+  $("graph").contentWindow?.postMessage(
+    { type: "set-edge-style", value: edgeStyle },
+    "*",
+  );
+}
 let reference,
   db,
   plan = null,
@@ -316,7 +333,10 @@ async function renderGraph() {
   const key = plan.createdAt;
   showMessage("正在准备现有节点画布…");
   try {
-    const html = await graphDocument({ plan, db: planDb }, showMessage);
+    const html = await graphDocument(
+      { plan, db: planDb, edgeStyle },
+      showMessage,
+    );
     if (plan.createdAt !== key) return;
     $("graph").srcdoc = html;
     graphKey = key;
@@ -329,6 +349,7 @@ async function renderGraph() {
 }
 function switchMode(value) {
   mode = value;
+  setDetailActive(value === "detail");
   $("text-view").classList.toggle("hidden", value !== "text");
   $("detail-view").classList.toggle("hidden", value !== "detail");
   $("tab-detail").setAttribute("aria-selected", String(value === "detail"));
@@ -342,13 +363,22 @@ let pendingDetailLayout = null;
 async function renderDetailed() {
   const revision = plan?.createdAt;
   try {
-    await renderDetail(plan, reference.translations, pendingDetailLayout);
+    await renderDetail(
+      plan,
+      reference.translations,
+      pendingDetailLayout,
+      planDb,
+    );
     if (plan?.createdAt === revision) pendingDetailLayout = null;
   } catch (e) {
+    console.error("Detailed graph:", e);
     if (plan?.createdAt === revision) showMessage(e.message, true);
   }
 }
 $("tab-detail").onclick = () => switchMode("detail");
+setDetailLineStyle(edgeStyle);
+$("detail-edge-style").onclick = () =>
+  changeEdgeStyle(edgeStyle === "dash" ? "chevron" : "dash");
 let fileMode = "data";
 function pickFile(mode) {
   fileMode = mode;
@@ -480,6 +510,7 @@ $("copy").onclick = async () => {
 };
 window.addEventListener("message", (event) => {
   if (event.source !== $("graph").contentWindow) return;
+  if (event.data?.type === "edge-style") changeEdgeStyle(event.data.value);
   if (event.data?.type === "layout" && plan) {
     for (const [id, node] of Object.entries(plan.graph.nodes)) {
       const incoming = event.data.graph?.nodes?.[id];
@@ -496,8 +527,13 @@ window.addEventListener("message", (event) => {
       }
     }
   }
-  if (event.data?.type === "graph-ready")
+  if (event.data?.type === "graph-ready") {
+    $("graph").contentWindow.postMessage(
+      { type: "set-edge-style", value: edgeStyle },
+      "*",
+    );
     showMessage("图形已生成。可拖动节点、缩放和查看物料流量。");
+  }
 });
 try {
   reference = await loadReference();

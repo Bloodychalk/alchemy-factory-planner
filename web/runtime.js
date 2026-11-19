@@ -1,5 +1,6 @@
 import { readLiteral, validateDataset } from "./data.js";
 import { patchSource } from "./patches.js";
+import { overviewThemeCSS, lineStyle } from "./graph-theme.js";
 const manifest = await fetch(new URL("./upstream.json", import.meta.url)).then(
   (r) => {
     if (!r.ok) throw new Error("无法加载参考版本清单");
@@ -81,6 +82,60 @@ export async function loadReference() {
 
 const scriptTag = (text) =>
   `<script>${text.replace(/<\/script/gi, "<\\/script")}</script>`;
+export async function loadGraphAssets(plan, db) {
+  const machines = new Set(plan.steps.map((s) => s.machine));
+  const items = new Set();
+  for (const s of plan.steps)
+    for (const i of [...Object.keys(s.inputs), ...Object.keys(s.outputs)])
+      items.add(i);
+  for (const n of plan.detail?.nodes || []) {
+    if (n.machine) machines.add(n.machine);
+    for (const p of n.ports) items.add(p.item);
+  }
+  const machineFiles = Object.fromEntries(
+    [...machines].map((m) => [
+      m,
+      `img/machines/${m.toLowerCase().replaceAll(" ", "-")}.png`,
+    ]),
+  );
+  const itemFiles = Object.fromEntries(
+    [...items]
+      .filter((i) => db.items[i])
+      .map((i) => [i, `img/item${db.items[i].id ?? 0}.png`]),
+  );
+  const names = new Set([
+    "img/item0.png",
+    ...Object.values(machineFiles),
+    ...Object.values(itemFiles),
+  ]);
+  const files = Object.fromEntries(
+    await Promise.all(
+      [...names]
+        .filter((n) => manifest.files[n])
+        .map(async (name) => {
+          try {
+            const bytes = await asset(name);
+            let str = "";
+            bytes.forEach((v) => {
+              str += String.fromCharCode(v);
+            });
+            return [name, "data:image/png;base64," + btoa(str)];
+          } catch {
+            return [name, ""];
+          }
+        }),
+    ),
+  );
+  return {
+    files,
+    machines: Object.fromEntries(
+      Object.entries(machineFiles).map(([k, v]) => [k, files[v] || ""]),
+    ),
+    items: Object.fromEntries(
+      Object.entries(itemFiles).map(([k, v]) => [k, files[v] || ""]),
+    ),
+  };
+}
 export async function graphDocument(payload, progress = () => {}) {
   let html = await textAsset("index.html");
   const names = [
@@ -95,34 +150,7 @@ export async function graphDocument(payload, progress = () => {}) {
     ),
   );
   progress("准备图形资源");
-  const imageNames = new Set(["img/item0.png"]);
-  for (const step of payload.plan.steps) {
-    for (const item of [
-      ...Object.keys(step.recipe.inputs),
-      ...Object.keys(step.recipe.outputs),
-    ]) {
-      const name = `img/item${payload.db.items[item]?.id ?? 0}.png`;
-      if (manifest.files[name]) imageNames.add(name);
-    }
-    const name = `img/machines/${step.machine.toLowerCase().replaceAll(" ", "-")}.png`;
-    if (manifest.files[name]) imageNames.add(name);
-  }
-  const images = Object.fromEntries(
-    await Promise.all(
-      [...imageNames].map(async (name) => {
-        try {
-          const bytes = await asset(name);
-          let str = "";
-          bytes.forEach((v) => {
-            str += String.fromCharCode(v);
-          });
-          return [name, "data:image/png;base64," + btoa(str)];
-        } catch {
-          return [name, ""];
-        }
-      }),
-    ),
-  );
+  const { files: images } = await loadGraphAssets(payload.plan, payload.db);
   html = html
     .replace(/<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/g, "")
     .replace(/<link[^>]+(?:canonical|alternate|icon)[^>]*>/g, "");
@@ -140,6 +168,7 @@ export async function graphDocument(payload, progress = () => {}) {
         "const referenceStore=new Map();const referenceStorage={getItem:k=>referenceStore.get(k)??null,setItem:(k,v)=>referenceStore.set(k,String(v)),removeItem:k=>referenceStore.delete(k),clear:()=>referenceStore.clear()};",
       ),
   );
+  payload = { ...payload, edgeStyle: lineStyle(payload.edgeStyle) };
   const serialized = JSON.stringify({ payload, images }).replaceAll(
     "<",
     "\\u003c",
@@ -159,6 +188,11 @@ export async function graphDocument(payload, progress = () => {}) {
       document.querySelectorAll('header, #update-banner, #view-calc, #view-cauldron, #view-help, #view-db').forEach(e => e.style.display='none');
       const view=document.getElementById('view-planner'); view.style.display='block';
       initPlannerPage();
+      const applyEdgeStyle = value => {_plannerSettings.edgeStyle=value==='chevron'?1:0;updatePlannerEdgeStyleButton();};
+      applyEdgeStyle(p.edgeStyle);
+      const originalToggleEdgeStyle=togglePlannerEdgeStyle;
+      togglePlannerEdgeStyle=function(){originalToggleEdgeStyle();parent.postMessage({type:'edge-style',value:_plannerSettings.edgeStyle?'chevron':'dash'},'*');};
+      window.addEventListener('message',event=>{if(event.source===parent&&event.data?.type==='set-edge-style'){applyEdgeStyle(event.data.value);renderPlannerEdges(_plannerLastFlows || plannerResolveFlows());}});
       plannerState.nodes={}; plannerState.edges={}; plannerState._nodeSeq=0; plannerState._edgeSeq=0;
       Object.assign(plannerState, p.plan.graph);
       const rootIds=Object.values(plannerState.nodes).filter(n=>n.resolved.outputsPerMachine.length===0).map(n=>n.id);
@@ -180,15 +214,11 @@ export async function graphDocument(payload, progress = () => {}) {
   const style = `<style>html,body{height:100%;background:#14231f}header,#update-banner{display:none!important}main{padding:0!important;max-width:none!important}#view-planner{height:100vh!important}#planner-canvas{height:100vh!important;border:0}#view-planner>.planner-toolbar{display:none!important}#planner-summary-panel{font-size:14px}.planner-node input{pointer-events:none}.planner-node button{display:none!important}:root{--accent:#000;--profit:#4ecdc4;--warn:#ffe66d;--danger:#ff6b6b;--panel:#fff;--border:#000;--text:#000;--text-muted:#000}
 html,body{background:#fff!important;color:#000;font-family:Inter,'Arial Black','PingFang SC','Microsoft YaHei',sans-serif;font-weight:700}
 #planner-canvas{background:#fff!important;border:0!important;border-radius:0!important}
-.planner-node{background:#fff!important;border:4px solid #000!important;border-radius:0!important;box-shadow:6px 6px 0 #4ecdc4!important;color:#000}
-.planner-node-header{background:#ffe66d!important;color:#000!important;border-radius:0!important;border-bottom:4px solid #000!important}
-.planner-node-header.heat{background:#ff6b6b!important}.planner-node-header.fert{background:#4ecdc4!important}
+${overviewThemeCSS}
 .planner-node-title,.planner-port-name,.planner-port-rate,.planner-port-empty,.planner-heatfert-row,.planner-edge-belt{color:#000!important;font-weight:700}
 .planner-node input{background:#fff!important;color:#000!important;border:2px solid #000!important;border-radius:0!important;opacity:1}
 .planner-port-gray{background:#fff!important}
-.planner-port-dot{border:2px solid #000!important;border-radius:0!important}
-.planner-edge-label{background:#fff!important;color:#000!important;border:2px solid #000!important;border-radius:0!important;box-shadow:2px 2px 0 #4ecdc4}
-.planner-edge-group{color:#000!important}
+
 #planner-summary-panel{background:#fff!important;color:#000!important;border:4px solid #000!important;border-radius:0!important;box-shadow:6px 6px 0 #4ecdc4!important;font-weight:700;backdrop-filter:none!important}
 .planner-view-btn{background:#ffe66d!important;color:#000!important;border:4px solid #000!important;border-radius:0!important;box-shadow:4px 4px 0 #4ecdc4!important;font-size:0!important;display:grid!important;place-items:center;transition:transform 300ms cubic-bezier(.34,1.56,.64,1),box-shadow 300ms cubic-bezier(.34,1.56,.64,1)}
 .planner-view-btn:hover{transform:translateY(-4px);background:#4ecdc4!important}.planner-view-btn:active{transform:translate(4px,4px);box-shadow:none!important}

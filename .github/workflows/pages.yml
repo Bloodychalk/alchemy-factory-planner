@@ -43,6 +43,8 @@ jobs:
           node-version: '22'
       - name: Check JavaScript modules
         run: for file in web/*.js; do node --check "$file"; done
+      - name: Check device layout
+        run: node --test tests/detail-layout.test.js
       - name: Select relevant checks
         id: checks
         env:
